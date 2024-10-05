@@ -1,6 +1,7 @@
 ### Local additions ###
 .idea/
 *.iml
+qodana.yaml
 
 ### IntelliJ IDEA ###
 out/
