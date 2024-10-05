@@ -1,0 +1,134 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+'Make public/private/etc show up as character rather than colored circle.
+skinparam classAttributeIconSize 0
+
+interface Closeable {
+    close()
+}
+note left of Closeable::close()
+    Releases resources the object is
+    holding (such as open files)
+end note
+
+interface AutoCloseable {
+    close()
+}
+note right of AutoCloseable::close()
+    Called automatically when exiting a
+    try-with-resources block in which the
+    object was declared in the resource
+    specification header
+end note
+
+'interface Readable {
+'    read(cBuf:CharBuffer)
+'}
+'note right of Readable::read(cBuf:CharBuffer)
+'    Reads characters into charBuffer
+'end note
+
+together {
+    interface Closeable
+    interface AutoCloseable
+'    interface Readable
+}
+
+abstract class InputStream {
+    InputStream()
+    ..
+    close()
+    {abstract} read()
+    read(bytes:byte[])
+    read(bytes:byte[],offset:int,len:int)
+}
+note left of InputStream::read()
+    Reads next byte
+end note
+note left of InputStream::read(bytes:byte[])
+    Reads bytes into byte array
+end note
+note left of InputStream::read(bytes:byte[],offset:int,len:int)
+    Reads bytes into portion of byte array
+end note
+
+abstract class Reader {
+    Reader()
+    ..
+    {abstract} close()
+    read()
+    read(chars:char[])
+    {abstract} read(chars:char[],offset:int,len:int)
+    read(cBuf:CharBuffer)
+}
+note right of Reader::read()
+    Reads a single character
+    (returns as int 0-255)
+end note
+note right of Reader::read(chars:char[])
+    Reads chars into char array
+end note
+note right of Reader::read(chars:char[],offset:int,len:int)
+    Reads chars into portion of char array
+end note
+note right of Reader::read(cBuf:CharBuffer)
+    Reads chars into CharBuffer
+end note
+
+class InputStreamReader {
+    InputStreamReader(in:InputStream)
+    ..
+    close()
+    read()
+    read(chars:char[],offset:int,len:int)
+}
+note left of InputStreamReader::InputStreamReader(in:InputStream)
+    Wraps input stream and decodes its bytes
+    into characters in the default charset (UTF8)
+end note
+note left of InputStreamReader::read()
+    Reads a single character
+end note
+note left of InputStreamReader::read(chars:char[],offset:int,len:int)
+    Reads characters into portion of char array
+end note
+
+class BufferedReader {
+    BufferedReader(in:Reader)
+    ..
+    readLine():String
+}
+
+together {
+    class InputStreamReader
+    class BufferedReader
+}
+
+Closeable <|.. InputStream
+AutoCloseable <|.. InputStream
+
+Closeable <|.. Reader
+AutoCloseable <|.. Reader
+'Readable <|.. Reader
+
+
+Reader <|-- BufferedReader
+Reader <|-- InputStreamReader
+InputStreamReader -[hidden]> BufferedReader
+'BufferedReader -[hidden]-> InputStreamReader
+'InputStream <|-- ByteArrayInputStream
+'InputStream <|-- FileInputStream
+'InputStream <|-- FilterInputStream
+'InputStream <|-- ObjectInputStream
+'InputStream <|-- PipedInputStream
+'InputStream <|-- SequenceInputStream
+'InputStream <|-- StringBufferInputStream
+'
+'Closeable <|.. InputStreamReader
+'AutoCloseable <|.. InputStreamReader
+'Readable <|.. InputStreamReader
+
+hide empty members
+
+@enduml

@@ -1,0 +1,81 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+'Make public/private/etc show up as character rather than colored circle.
+skinparam classAttributeIconSize 0
+
+interface Closeable {
+    close()
+}
+'note left of Closeable::close()
+'    Releases resources the object is
+'    holding (such as open files)
+'end note
+
+interface AutoCloseable {
+    close()
+}
+'note right of AutoCloseable::close()
+'    Called automatically when exiting a
+'    try-with-resources block in which the
+'    object was declared in the resource
+'    specification header
+'end note
+
+interface Appendable {
+    append(c:char)
+    append(csq:CharSequence)
+    append(csq:CharSequence,start:int,end:int)
+}
+note left of Appendable::append(c:char)
+    Appends char to
+    this Appendable
+end note
+note left of Appendable::append(csq:CharSequence)
+    Appends CharSequence
+    to this Appendable
+end note
+note left of Appendable::append(csq:CharSequence,start:int,end:int)
+    Appends subsequence
+    to this Appendable
+end note
+
+interface Flushable {
+    flush()
+}
+note right of Flushable::flush()
+    Writes any buffered output
+    to underlying stream
+end note
+
+
+abstract class Writer {
+    #Writer()
+    ..
+    {abstract} write(chars:char[],offset:int,len:int)
+    write(c:int)
+    write(str:String)
+    write(str:String,offset:int,len:int)
+}
+note left of Writer::write(c:int)
+    Writes char contained in
+    the 16 low-order bits
+end note
+
+class OutputStreamWriter {
+
+}
+
+class PrintWriter {
+
+}
+
+Appendable <|.. Writer
+Flushable <|.. Writer
+Closeable <|.. Writer
+AutoCloseable <|.. Writer
+Writer <|-- OutputStreamWriter
+Writer <|-- PrintWriter
+
+hide empty members
+@enduml

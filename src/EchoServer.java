@@ -33,7 +33,7 @@ import java.net.*;
 import java.io.*;
 
 public class EchoServer {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         if (args.length != 1) {
             System.err.println("Usage: java EchoServer <port number>");
@@ -49,7 +49,7 @@ public class EchoServer {
                 PrintWriter out =
                         new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(clientSocket.getInputStream()));
+                        new InputStreamReader(clientSocket.getInputStream()))
         ) {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
