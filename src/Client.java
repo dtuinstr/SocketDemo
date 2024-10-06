@@ -1,12 +1,11 @@
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Client {
-    private String hostname;
-    private int port;
+    private final String hostname;
+    private final int port;
 
     /**
      * Create a client for exchanging text strings with a
@@ -35,7 +34,7 @@ public class Client {
              // Build PrintWriter on client socket.
              OutputStream outStream = socket.getOutputStream();
              OutputStreamWriter outWriter = new OutputStreamWriter(outStream);
-             PrintWriter out = new PrintWriter(outWriter, true); // true: autoflush
+             PrintWriter out = new PrintWriter(outWriter, true) // true: autoflush
         ) {
             Scanner keyboard = new Scanner(System.in);
             System.out.println(in.readLine());

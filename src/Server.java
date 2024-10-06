@@ -3,11 +3,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    private int port;
+    private final int port;
 
     /**
      * Creates an echo server listening on the given port.
-     * @port the port to listen on.
+     * @param port the port to listen on.
      */
     public Server(int port) {
         this.port = port;
@@ -30,7 +30,7 @@ public class Server {
              // Build PrintWriter on client socket.
              OutputStream outStream = clientSocket.getOutputStream();
              OutputStreamWriter outWriter = new OutputStreamWriter(outStream);
-             PrintWriter out = new PrintWriter(outWriter, true); // true: autoflush
+             PrintWriter out = new PrintWriter(outWriter, true) // true: autoflush
         ) {
             out.println("Echo server. Type text to echo; or just Enter to exit.");
             String inString = in.readLine();
