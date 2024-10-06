@@ -13,34 +13,32 @@ public class Server {
         this.port = port;
     }
 
-    public void start() throws RuntimeException {
-        // Create server socket on this.port
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            // Accept a connection and build a buffered reader on it.
-            try (Socket clientSocket = serverSocket.accept();
-                 // Build buffered reader on client socket
-                 InputStream inStream = clientSocket.getInputStream();
-                 InputStreamReader inReader = new InputStreamReader(inStream);
-                 BufferedReader in = new BufferedReader(inReader);
-                 // Build PrintWriter on client socket
-                 OutputStream outStream = clientSocket.getOutputStream();
-                 OutputStreamWriter outWriter = new OutputStreamWriter(outStream);
-                 PrintWriter out = new PrintWriter(outWriter, true); // true: autoflush
-            ) {
-                String inString = in.readLine();
-                while (!inString.isEmpty()) {
-                    out.println("Echo: \"" + inString + "\"");
-                    inString = in.readLine();
-                }
-            } catch (IOException e) { // serverSocket.accept()
-                throw new RuntimeException("Error accepting connection, "
-                        + "getting its input or output stream, "
-                        + "or doing IO on it. "
-                        + e.getMessage());
+    /**
+     * Starts the echo server.
+     * @throws IOException if ServerSocket cannot be created,
+     *              its accept() call fails, wrapping it for
+     *              IO fails, or actual IO fails.
+     */
+    public void start() throws IOException {
+        try (// Create server socket on local port.
+             ServerSocket serverSocket = new ServerSocket(port);
+             Socket clientSocket = serverSocket.accept();
+             // Build buffered reader on client socket.
+             InputStream inStream = clientSocket.getInputStream();
+             InputStreamReader inReader = new InputStreamReader(inStream);
+             BufferedReader in = new BufferedReader(inReader);
+             // Build PrintWriter on client socket.
+             OutputStream outStream = clientSocket.getOutputStream();
+             OutputStreamWriter outWriter = new OutputStreamWriter(outStream);
+             PrintWriter out = new PrintWriter(outWriter, true); // true: autoflush
+        ) {
+            out.println("Echo server. Type text to echo; or just Enter to exit.");
+            String inString = in.readLine();
+            while (!inString.isEmpty()) {
+                out.println("Echo: \"" + inString + "\"");
+                inString = in.readLine();
             }
-        } catch (IOException e) {   // new ServerSocket(port)
-            throw new RuntimeException("Could not create ServerSocket. "
-                    + e.getMessage());
+            out.println("Server exiting. Good bye.");
         }
     }
 }
