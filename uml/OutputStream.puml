@@ -4,77 +4,168 @@
 'Make public/private/etc show up as character rather than colored circle.
 skinparam classAttributeIconSize 0
 
-interface Closeable {
-    close()
-}
-'note left of Closeable::close()
-'    Releases resources the object is
-'    holding (such as open files)
-'end note
-
-interface AutoCloseable {
-    close()
-}
-'note right of AutoCloseable::close()
-'    Called automatically when exiting a
-'    try-with-resources block in which the
-'    object was declared in the resource
-'    specification header
-'end note
-
-interface Appendable {
-    append(c:char)
-    append(csq:CharSequence)
-    append(csq:CharSequence,start:int,end:int)
-}
-note left of Appendable::append(c:char)
-    Appends char to
-    this Appendable
-end note
-note left of Appendable::append(csq:CharSequence)
-    Appends CharSequence
-    to this Appendable
-end note
-note left of Appendable::append(csq:CharSequence,start:int,end:int)
-    Appends subsequence
-    to this Appendable
-end note
-
 interface Flushable {
-    flush()
+    {abstract} flush()
 }
 note right of Flushable::flush()
     Writes any buffered output
     to underlying stream
 end note
 
-
-abstract class Writer {
-    #Writer()
-    ..
-    {abstract} write(chars:char[],offset:int,len:int)
-    write(c:int)
-    write(str:String)
-    write(str:String,offset:int,len:int)
+interface AutoCloseable {
+    {abstract} close()
 }
-note left of Writer::write(c:int)
-    Writes char contained in
-    the 16 low-order bits
+note left of AutoCloseable::close()
+    Called automatically when exiting a
+    try-with-resources block in which the
+    object was declared in the resource
+    specification header
+end note
+
+'interface Appendable {
+'    {abstract} append(c:char)
+'    {abstract} append(csq:CharSequence)
+'    {abstract} append(csq:CharSequence,start:int,end:int)
+'}
+'note right of Appendable::append(c:char)
+'    Appends char to
+'    this Appendable
+'end note
+'note right of Appendable::append(csq:CharSequence)
+'    Appends CharSequence
+'    to this Appendable
+'end note
+'note right of Appendable::append(csq:CharSequence,start:int,end:int)
+'    Appends subsequence
+'    to this Appendable
+'end note
+
+Abstract class OutputStream {
+    close()
+    flush()
+    {abstract} write(b:int)
+    write(b:byte[])
+    write(b:byte[],offset:int,len:int)
+}
+note top of OutputStream
+    Byte-output stream
+end note
+note left of OutputStream::write(b:int)
+    Writes a byte
+end note
+note left of OutputStream::write(b:byte[])
+    Writes byte array
+end note
+note left of OutputStream::write(b:byte[],offset:int,len:int)
+    Writes portion of byte array
 end note
 
 class OutputStreamWriter {
-
+    OutputStreamWriter(out:OutputStream)
+    ..
+    close()
+    flush()
+    write(chars:char[],offset:int,len:int)
 }
+note right of OutputStreamWriter::OutputStreamWriter(out:OutputStream)
+    Wraps output
+    stream with
+    characters-to-bytes
+    encoder
+end note
+
+abstract class Writer {
+'    #Writer()
+'    ..
+    {abstract} close()
+    {abstract} flush()
+    {abstract} write(chars:char[],offset:int,len:int)
+'    append(csq:CharSequence)
+'    append(c:char)
+'    append(csq:CharSequence,start:int,end:int)
+    write(c:int)
+    write(chars:char[])
+    write(str:String)
+    write(str:String,offset:int,len:int)
+}
+note right of Writer::write(chars:char[],offset:int,len:int)
+    Writes portion of char array
+end note
+note right of Writer::write(c:int)
+    Writes character in the
+    the 16 low-order bits
+end note
+
 
 class PrintWriter {
-
+    PrintWriter(out:OutputStream,autoFlush:boolean)
+    PrintWriter(out:Writer,autoFlush:boolean)
+    ..
+    close()
+    flush()
+    write(chars:char[],offset:int,len:int)
+    print(*)
+    printf(fmtStr:String,args...:Object)
+    println(*)
 }
+note bottom of PrintWriter
+    Prints formatted (character) represen-
+    tations of objects to a character-output
+    stream. If constructed with autoFlush==
+    true, flushes buffer after each call to
+    println(), printf(), or format(), but
+    <b><i>not</i></b> when encountering '\n' character.
+end note
+note left of PrintWriter::PrintWriter(out:OutputStream,autoFlush:boolean)
+    Convenience constructor: creates
+    OutputStreamWriter, then wraps it
+end note
+note left of PrintWriter::PrintWriter(out:Writer,autoFlush:boolean)
+    Wraps a Writer (such as an OutputStreamWriter)
+end note
+note left of PrintWriter::print(*)
+    Prints string representation of argument
+end note
+note left of PrintWriter::printf(fmtStr:String,args...:Object)
+    Prints argument(s) according to formatting
+    given byt fmtStr.
+end note
+note left of PrintWriter::println(*)
+    Prints string representation of argument, then newline
+end note
 
-Appendable <|.. Writer
-Flushable <|.. Writer
-Closeable <|.. Writer
+'Force Flushable, AutoCloseable to same layer
+AutoCloseable -[hidden] Flushable
+
+'Push OutputStream down a layer
+Flushable --[hidden] Spacer1
+Spacer1 --[hidden] OutputStream
+hide Spacer1
+
+AutoCloseable <|.. OutputStream
 AutoCloseable <|.. Writer
+
+'Push Writer down a layer
+Flushable -[hidden] Spacer2
+Spacer2 -[hidden] Writer
+hide Spacer2
+
+Flushable <|.. Writer
+
+Flushable <|.. OutputStream
+
+
+'Force OutputStream, Writer to same layer
+OutputStream -[hidden] Writer
+
 Writer <|-- OutputStreamWriter
+
+'Stack OutputStreamWriter above PrintWriter
+Writer --[hidden] Spacer3
+Spacer3 --[hidden] PrintWriter
+OutputStreamWriter --[hidden] PrintWriter
+hide Spacer3
+
 Writer <|-- PrintWriter
 
 hide empty members

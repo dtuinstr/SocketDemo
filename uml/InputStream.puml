@@ -4,130 +4,143 @@
 'Make public/private/etc show up as character rather than colored circle.
 skinparam classAttributeIconSize 0
 
-interface Closeable {
-    close()
-}
-note left of Closeable::close()
-    Releases resources the object is
-    holding (such as open files)
-end note
+'interface Closeable {
+'    close()
+'}
+'note left of Closeable::close()
+'    Releases resources the object is
+'    holding (such as open files)
+'end note
 
 interface AutoCloseable {
-    close()
+    {abstract} close()
 }
-note right of AutoCloseable::close()
+note left of AutoCloseable::close()
     Called automatically when exiting a
     try-with-resources block in which the
     object was declared in the resource
     specification header
 end note
 
-'interface Readable {
-'    read(cBuf:CharBuffer)
-'}
-'note right of Readable::read(cBuf:CharBuffer)
-'    Reads characters into charBuffer
-'end note
-
-together {
-    interface Closeable
-    interface AutoCloseable
-'    interface Readable
+interface Readable {
+    {abstract} read(cBuf:CharBuffer)
 }
+note right of Readable::read(cBuf:CharBuffer)
+    Reads characters
+    into charBuffer
+end note
 
 abstract class InputStream {
-    InputStream()
-    ..
+'    InputStream()
+'    ..
     close()
     {abstract} read()
     read(bytes:byte[])
     read(bytes:byte[],offset:int,len:int)
 }
+note top of InputStream
+    Byte-input stream. Note: does <b><i>not</i></b>
+    explicitly implement Readable
+end note
 note left of InputStream::read()
     Reads next byte
 end note
 note left of InputStream::read(bytes:byte[])
-    Reads bytes into byte array
+    Reads bytes
+    into byte array
 end note
 note left of InputStream::read(bytes:byte[],offset:int,len:int)
-    Reads bytes into portion of byte array
+    Reads bytes into
+    portion of byte array
 end note
 
 abstract class Reader {
-    Reader()
-    ..
+'    Reader()
+'    ..
     {abstract} close()
     read()
     read(chars:char[])
     {abstract} read(chars:char[],offset:int,len:int)
     read(cBuf:CharBuffer)
 }
+note top of Reader
+    Wraps a byte stream and
+    decodes its bytes into
+    characters, making it a
+    character-input stream.
+end note
 note right of Reader::read()
     Reads a single character
-    (returns as int 0-255)
+    (as int in range 0-65535)
 end note
 note right of Reader::read(chars:char[])
-    Reads chars into char array
+    Reads chars
+    into char array
 end note
 note right of Reader::read(chars:char[],offset:int,len:int)
-    Reads chars into portion of char array
+    Reads chars into
+    portion of char array
 end note
 note right of Reader::read(cBuf:CharBuffer)
-    Reads chars into CharBuffer
+    Reads chars
+    into CharBuffer
 end note
 
 class InputStreamReader {
     InputStreamReader(in:InputStream)
     ..
     close()
-    read()
+'    read()
     read(chars:char[],offset:int,len:int)
 }
 note left of InputStreamReader::InputStreamReader(in:InputStream)
     Wraps input stream and decodes its bytes
     into characters in the default charset (UTF8)
 end note
-note left of InputStreamReader::read()
-    Reads a single character
-end note
-note left of InputStreamReader::read(chars:char[],offset:int,len:int)
-    Reads characters into portion of char array
-end note
+'note left of InputStreamReader::read()
+'    Reads a single character
+'end note
+'note left of InputStreamReader::read(chars:char[],offset:int,len:int)
+'    Reads characters into portion of char array
+'end note
 
 class BufferedReader {
     BufferedReader(in:Reader)
     ..
+    close()
+    read(chars:char[],offset:int,len:int)
     readLine():String
 }
+note left of BufferedReader::BufferedReader(in:Reader)
+    Wraps a character-input
+    stream and buffers it
+end note
 
-together {
-    class InputStreamReader
-    class BufferedReader
-}
+'Force AutoCloseable and Readable to same layer
+AutoCloseable -[hidden] Readable
 
-Closeable <|.. InputStream
+'Push InputStream down a layer
+AutoCloseable --[hidden] Spacer1
+Spacer1 --[hidden] InputStream
+hide Spacer1
+
 AutoCloseable <|.. InputStream
-
-Closeable <|.. Reader
 AutoCloseable <|.. Reader
-'Readable <|.. Reader
 
+'Push Reader down a layer
+Readable --[hidden] Spacer2
+Spacer2 --[hidden] Reader
+hide Spacer2
+
+Readable <|.. Reader
+
+Reader <|-- InputStreamReader
+'Stack InputStreamReader above BufferedReader
+Reader --[hidden] Spacer3
+Spacer3 --[hidden] BufferedReader
+hide Spacer3
 
 Reader <|-- BufferedReader
-Reader <|-- InputStreamReader
-InputStreamReader -[hidden]> BufferedReader
-'BufferedReader -[hidden]-> InputStreamReader
-'InputStream <|-- ByteArrayInputStream
-'InputStream <|-- FileInputStream
-'InputStream <|-- FilterInputStream
-'InputStream <|-- ObjectInputStream
-'InputStream <|-- PipedInputStream
-'InputStream <|-- SequenceInputStream
-'InputStream <|-- StringBufferInputStream
-'
-'Closeable <|.. InputStreamReader
-'AutoCloseable <|.. InputStreamReader
-'Readable <|.. InputStreamReader
 
 hide empty members
 
