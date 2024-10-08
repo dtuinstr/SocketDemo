@@ -160,6 +160,8 @@ OutputStream -[hidden] Writer
 
 Writer <|-- OutputStreamWriter
 
+OutputStreamWriter o-- OutputStream
+
 'Stack OutputStreamWriter above PrintWriter
 Writer --[hidden] Spacer3
 Spacer3 --[hidden] PrintWriter

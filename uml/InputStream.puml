@@ -135,6 +135,8 @@ hide Spacer2
 Readable <|.. Reader
 
 Reader <|-- InputStreamReader
+
+'InputStreamReader o-- InputStream
 'Stack InputStreamReader above BufferedReader
 Reader --[hidden] Spacer3
 Spacer3 --[hidden] BufferedReader
