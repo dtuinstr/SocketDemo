@@ -25,7 +25,7 @@ public class Client {
      * @throws IOException if socket creation, wrapping, or IO fails.
      */
     public void start() throws UnknownHostException, IOException {
-        try (// Create server socket on local port.
+        try (// Create (client) socket on local port.
              Socket socket = new Socket(hostname, port);
              // Build buffered reader on client socket.
              InputStream inStream = socket.getInputStream();
