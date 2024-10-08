@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-public class Main {
+public class SocketDemo {
     private final static String USAGE =
             "Usage: java SocketDemo client <server name> <server port>\n"
                     + "       java SocketDemo server <server port>";
