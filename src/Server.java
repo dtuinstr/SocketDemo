@@ -1,4 +1,7 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -11,53 +14,67 @@ import java.net.Socket;
  * empty string.
  */
 public class Server {
+    // For strings sent to client.
     private static final String GREETING =
-            "[Echo server listening. Type just ENTER to close connection.]";
-    private static final String OUPUT_LABEL = ""; // "[Echo] ";
+            "[Server listening. Type just ENTER to close connection.]";
+    private static final String ECHO_FORMAT = "Echo: \"%s\"";
     private static final String GOOD_BYE = "[Closing connection, good-bye.]";
+    // For strings printed on server terminal.
+    private static final String START_FORMAT =
+            "Server starting, listening on port %d. Ctrl + C to exit.";
 
+    // Object variables.
     private final int port;
-    private final String startMessage;
 
     /**
      * Creates a server for character-based exchanges.
+     *
      * @param port the port to listen on.
+     * @throws IllegalArgumentException if port not in range [1024, 49151].
      */
-    public Server(int port) {
+    public Server(int port) throws IllegalArgumentException {
+        if (port < 1024 || port > 49151) {
+            throw new IllegalArgumentException(port + "not in range 1024-49151");
+        }
         this.port = port;
-        this.startMessage = "Server starting, listening on port " + port
-        + ". Ctrl+C to exit.";
     }
 
     /**
      * Starts this server, listening on the port it was
      * constructed with.
+     *
      * @throws IOException if ServerSocket creation, connection
-     *      acceptance, wrapping, or IO fails.
+     *                     acceptance, wrapping, or IO fails.
      */
     public void start() throws IOException {
-        System.out.println(startMessage);
-        while (true) {
-            try (// Create server socket on local port.
-                 ServerSocket serverSocket = new ServerSocket(port);
-                 Socket clientSocket = serverSocket.accept();
-                 // Build buffered reader on client socket.
-                 BufferedReader in =
-                         new BufferedReader(
-                                 new InputStreamReader(
-                                         clientSocket.getInputStream()));
-                 // Build PrintWriter on client socket.
-                 PrintWriter out =
-                         new PrintWriter(clientSocket.getOutputStream(), true);
-            ) {
-                out.println(GREETING);
-                String inString = in.readLine();
-                while (inString != null && !inString.isEmpty()) {
-                    out.println(OUPUT_LABEL + "\"" + inString + "\"");
-                    inString = in.readLine();
-                }
-                out.println(GOOD_BYE);
-            }   // Streams and sockets closed by try-with-resources.
-        }
+        System.out.printf(START_FORMAT, port);
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            while (true) {
+                try (
+                        // Wait for connection.
+                        Socket clientSocket = serverSocket.accept();
+                        // Build buffered reader on client socket.
+                        BufferedReader inReader =
+                                new BufferedReader(
+                                        new InputStreamReader(
+                                                clientSocket.getInputStream()));
+                        // Build PrintWriter on client socket.
+                        PrintWriter outWriter =
+                                new PrintWriter(clientSocket.getOutputStream(),
+                                        true)
+                ) {
+                    // Connection made. Greet client.
+                    outWriter.println(GREETING);
+                    // Converse with client.
+                    String inString = inReader.readLine();
+                    while (inString != null && !inString.isEmpty()) {
+                        outWriter.printf(ECHO_FORMAT, inString);
+                        inString = inReader.readLine();
+                    }
+                    outWriter.println(GOOD_BYE);
+                }   // Streams closed by try-with-resources.
+            }
+        } // Socket closed by try-with-resources.
     }
 }
