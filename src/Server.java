@@ -18,27 +18,10 @@ public class Server
     // For strings sent to client.
     private static final String GREETING =
             "[Server listening. Type just ENTER to close connection.]";
-    private static final String ECHO_FMT = "Echo: \"%s\"";
     private static final String GOOD_BYE = "[Closing connection, good-bye.]";
-    // For strings printed on server terminal.
-    private static final String START_FMT =
-            "Server starting, listening on port %d. Ctrl + C to exit.\n";
-    private static final String PORT_ERR_FMT =
-            "Port %d not in range 1024-49151.";
 
     // Object variables.
     private final int port;
-
-    /**
-     * Creates a server for character-based exchanges.
-     *
-     * @param portStr the port to listen on, as a string.
-     * @throws NumberFormatException if portStr cannot be parsed as an int.
-     */
-    public Server(String portStr) throws NumberFormatException
-    {
-        this(Integer.parseInt(portStr));
-    }
 
     /**
      * Creates a server for character-based exchanges.
@@ -47,11 +30,11 @@ public class Server
      * @throws IllegalArgumentException if port not in range [1024, 49151].
      */
     public Server(int port)
-            throws IllegalArgumentException, NumberFormatException
+            throws IllegalArgumentException
     {
         if (port < 1024 || port > 49151) {
             throw new IllegalArgumentException(
-                    String.format(PORT_ERR_FMT, port));
+                    "Port " + port + " not in range 1024-49151.");
         }
         this.port = port;
     }
@@ -66,7 +49,8 @@ public class Server
     public void start() throws IOException
     {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.format(START_FMT, port);
+            System.out.println("Server starting on port " + port + ".");
+            System.out.println("Ctrl + C to exit.");
             while (true) {
                 try (
                         // Wait for connection.
@@ -87,10 +71,12 @@ public class Server
                     // Converse with client.
                     String inString = inReader.readLine();
                     while (inString != null && !inString.isEmpty()) {
-                        outWriter.format(ECHO_FMT, inString);
+                        System.out.println(inString);   // DEBUG
+                        outWriter.println("Echo: \"" + inString + "\"");
                         inString = inReader.readLine();
                     }
                     outWriter.println(GOOD_BYE);
+                    System.out.println("Client terminated connection.");
                 }   // Streams closed by try-with-resources.
             }
         } // Socket closed by try-with-resources.

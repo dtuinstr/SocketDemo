@@ -15,26 +15,26 @@ import java.util.Scanner;
  */
 public class Client
 {
-    // %s:%d renders as hostname:port
-    private static final String START_FMT =
-            "Attempting connection to %s:%d";
-    private static final String PROMPT_FMT = "%s:%d> ";
-    private static final String END_FMT =
-            "Connection to %s:%d closed, exiting."; //
-
     private final String hostname;
     private final int port;
+    private final String prompt;
 
     /**
      * Creates a client for character-based exchanges with a server.
      *
      * @param hostname the hostname of the server.
      * @param port     the service's port on the server.
+     * @throws IllegalArgumentException if port not in range [1-49151]
      */
     public Client(String hostname, int port)
     {
+        if (port < 1 || port > 49151) {
+            throw new IllegalArgumentException(
+                    "Port " + port + " not in range 1 - 49151.");
+        }
         this.hostname = hostname;
         this.port = port;
+        this.prompt = "hostname:" + port + "> ";
     }
 
     /**
@@ -46,7 +46,7 @@ public class Client
      */
     public void start() throws UnknownHostException, IOException
     {
-        System.out.format(START_FMT, hostname, port);
+        System.out.println("Attempting connection to " + hostname + ":" + port);
         Scanner keyboard = new Scanner(System.in);
 
         try (
@@ -64,14 +64,15 @@ public class Client
             String userInput;
             System.out.println(inReader.readLine());    // Get server hello.
             do {
-                System.out.format(PROMPT_FMT, hostname, port);
+                System.out.print(prompt);
                 userInput = keyboard.nextLine();
                 outWriter.println(userInput);
                 System.out.println(inReader.readLine());
             } while (!userInput.isEmpty());
 
         }   // Streams and sockets closed by try-with-resources
-        System.out.format(END_FMT, hostname, port);
+        System.out.println("Connection to " + hostname + ":" + port
+                + " closed, exiting.");
     }
 }
 

@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 /**
  * Main program. Based on command-line arguments (see USAGE
  * string), creates and starts either a client or a server.
@@ -32,25 +29,30 @@ public class SocketDemo
                 && args[0].equalsIgnoreCase("server"))
         {
             try {
-                Server server = new Server(args[1]);
+                int port = Integer.parseInt(args[1]);
+                Server server = new Server(port);
                 server.start();
+            } catch (NumberFormatException e) {
+                System.err.println(args[1] + " cannot be parsed as an int.");
+                System.err.println(USAGE);
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println(e.getMessage());
+                System.err.println(USAGE);
             }
         } else if (args.length == 3
                 && args[0].equalsIgnoreCase("client"))
         {
-            String hostArg = args[1];
-            String portArg = args[2];
             try {
-                Client client = new Client(hostArg, Integer.parseInt(portArg));
+                String serverName = args[1];
+                int port = Integer.parseInt(args[2]);
+                Client client = new Client(serverName, port);
                 client.start();
             } catch (NumberFormatException e) {
-                System.err.println("Not an integer: " + portArg);
-            } catch (UnknownHostException e) {
-                System.err.println("Could not find server \"" + hostArg + "\".");
-            } catch (IOException e) {
-                System.err.println("IO problem. " + e.getMessage());
+                System.err.println(args[2] + " cannot be parsed as an int.");
+                System.err.println(USAGE);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.err.println(USAGE);
             }
         } else {
             System.err.println(USAGE);
