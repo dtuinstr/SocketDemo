@@ -31,16 +31,11 @@ public class SocketDemo
         } else if (args.length == 2
                 && args[0].equalsIgnoreCase("server"))
         {
-            String portArg = args[1];
             try {
-                Server server = new Server(Integer.parseInt(portArg));
+                Server server = new Server(args[1]);
                 server.start();
-            } catch (NumberFormatException e) {
-                System.err.println("Not an integer: " + portArg + e.getMessage());
-            } catch (IllegalArgumentException e) {
-                System.err.println(e.getMessage());
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         } else if (args.length == 3
                 && args[0].equalsIgnoreCase("client"))
