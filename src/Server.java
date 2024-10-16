@@ -21,9 +21,9 @@ public class Server
     private static final String ECHO_FMT = "Echo: \"%s\"";
     private static final String GOOD_BYE = "[Closing connection, good-bye.]";
     // For strings printed on server terminal.
-    private static final String START_FMT =
-            "Server starting, listening on port %d. Ctrl + C to exit.";
-    private static final String PORT_ERR_FMT =
+    private static final String START_MSG =
+            "Server starting, listening on port %d. Ctrl + C to exit.\n";
+    private static final String PORT_ERR_MSG =
             "Port %d not in range 1024-49151.";
 
     // Object variables.
@@ -32,16 +32,26 @@ public class Server
     /**
      * Creates a server for character-based exchanges.
      *
+     * @param portStr the port to listen on, as a string.
+     * @throws NumberFormatException if portStr cannot be parsed as an int.
+     */
+    public Server(String portStr) throws NumberFormatException
+    {
+        this(Integer.parseInt(portStr));
+    }
+
+    /**
+     * Creates a server for character-based exchanges.
+     *
      * @param port the port to listen on.
      * @throws IllegalArgumentException if port not in range [1024, 49151].
-     * @throws NumberFormatException    if port cannot be parsed as an int.
      */
     public Server(int port)
             throws IllegalArgumentException, NumberFormatException
     {
         if (port < 1024 || port > 49151) {
             throw new IllegalArgumentException(
-                    String.format(PORT_ERR_FMT, port));
+                    String.format(PORT_ERR_MSG, port));
         }
         this.port = port;
     }
@@ -55,9 +65,8 @@ public class Server
      */
     public void start() throws IOException
     {
-        System.out.format(START_FMT, port);
-
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.format(START_MSG, port);
             while (true) {
                 try (
                         // Wait for connection.
