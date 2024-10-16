@@ -21,9 +21,9 @@ public class Server
     private static final String ECHO_FMT = "Echo: \"%s\"";
     private static final String GOOD_BYE = "[Closing connection, good-bye.]";
     // For strings printed on server terminal.
-    private static final String START_MSG =
+    private static final String START_FMT =
             "Server starting, listening on port %d. Ctrl + C to exit.\n";
-    private static final String PORT_ERR_MSG =
+    private static final String PORT_ERR_FMT =
             "Port %d not in range 1024-49151.";
 
     // Object variables.
@@ -51,7 +51,7 @@ public class Server
     {
         if (port < 1024 || port > 49151) {
             throw new IllegalArgumentException(
-                    String.format(PORT_ERR_MSG, port));
+                    String.format(PORT_ERR_FMT, port));
         }
         this.port = port;
     }
@@ -66,7 +66,7 @@ public class Server
     public void start() throws IOException
     {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.format(START_MSG, port);
+            System.out.format(START_FMT, port);
             while (true) {
                 try (
                         // Wait for connection.
