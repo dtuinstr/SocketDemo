@@ -4,6 +4,8 @@
 'Make public/private/etc show up as character rather than colored circle.
 skinparam classAttributeIconSize 0
 
+hide empty members
+
 'interface Closeable {
 '    close()
 '}
@@ -88,7 +90,6 @@ end note
 
 class InputStreamReader {
     InputStreamReader(in:InputStream)
-    ..
     close()
 '    read()
     read(chars:char[],offset:int,len:int)
@@ -106,7 +107,6 @@ end note
 
 class BufferedReader {
     BufferedReader(in:Reader)
-    ..
     close()
     read(chars:char[],offset:int,len:int)
     readLine():String
@@ -136,14 +136,16 @@ Readable <|.. Reader
 
 Reader <|-- InputStreamReader
 
-'InputStreamReader o-- InputStream
 'Stack InputStreamReader above BufferedReader
 Reader --[hidden] Spacer3
 Spacer3 --[hidden] BufferedReader
 hide Spacer3
 
+InputStream --o InputStreamReader
+Reader --o BufferedReader
 Reader <|-- BufferedReader
 
-hide empty members
+
+
 
 @enduml
